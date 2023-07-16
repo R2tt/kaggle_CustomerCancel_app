@@ -14,6 +14,7 @@ from werkzeug.utils import secure_filename
 from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.preprocessing import image
 import numpy as np
+import pandas as pd
 from joblib import load
 
 classes = ["0","1"]
@@ -44,15 +45,16 @@ def upload_file():
             filepath = os.path.join(UPLOAD_FOLDER, filename)
 
             #受け取ったファイルを読み込み、np形式に変換
-            img = image.load_img(filepath, grayscale=True, target_size=(image_size,image_size))
-            img = image.img_to_array(img)
-            data = np.array([img])
+            # img = image.load_img(filepath, grayscale=True, target_size=(image_size,image_size))
+            # img = image.img_to_array(img)
+            # data = np.array([img])
+            data = pd.read_csv(filepath)
             #変換したデータをモデルに渡して予測する
-            result = model.predict(data)[0]
-            predicted = result.argmax()
-            pred_answer = "これは " + classes[predicted] + " です"
+            result = model.predict(pd.get_dummies(data[["product","age","usage_period"]]))
+            #predicted = result.argmax()
+            #pred_answer = classes[predicted]
 
-            return render_template("index.html",answer=pred_answer)
+            return render_template("index.html",answer=result)
 
     return render_template("index.html",answer="")
 

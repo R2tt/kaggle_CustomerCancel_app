@@ -1,4 +1,4 @@
-"","customer_id",product,"age",amount
-"1","C2990",prd_2,62,7500
-"2","C2991",prd_1,58,2400
-"3","C2992",prd_1,53,5300
+"","customer_id",product,"age",usage_period
+"1","C2990",prd_1,56,60
+"2","C2991",prd_1,53,53
+"3","C2992",prd_2,62,60

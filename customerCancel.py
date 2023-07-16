@@ -11,11 +11,9 @@
 import os
 from flask import Flask, request, redirect, render_template, flash
 from werkzeug.utils import secure_filename
-from tensorflow.keras.models import Sequential, load_model
-from tensorflow.keras.preprocessing import image
 import numpy as np
 import pandas as pd
-from joblib import load
+import pickle
 
 classes = ["0","1"]
 
@@ -27,7 +25,8 @@ app = Flask(__name__)
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-model = load('./model.joblib.cmp')#学習済みモデルをロード
+with open('./model.pkl', 'rb') as f:
+    model = pickle.load(f)#学習済みモデルをロード
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
@@ -50,11 +49,12 @@ def upload_file():
             # data = np.array([img])
             data = pd.read_csv(filepath)
             #変換したデータをモデルに渡して予測する
-            result = model.predict(pd.get_dummies(data[["product","age","usage_period"]]))
+            data["product_prd_1"] = [1 if s=="prd_1" else 0 for s in data["product"]]
+            data["product_prd_2"] = [1 if s=="prd_2" else 0 for s in data["product"]]
+            result = model.predict_proba(data[["age","usage_period","product_prd_1","product_prd_2"]])
             #predicted = result.argmax()
             #pred_answer = classes[predicted]
-
-            return render_template("index.html",answer=result)
+            return render_template("index.html",answer=result[:,1])
 
     return render_template("index.html",answer="")
 
